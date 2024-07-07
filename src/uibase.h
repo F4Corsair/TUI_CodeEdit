@@ -33,6 +33,7 @@ extern WINDOW *contents;
 
 /* METHOD */
 void ui_init();
+void non_cannonical();
 void ui_terminate();
 void ui_set_whole();
 void window_reset();

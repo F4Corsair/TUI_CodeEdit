@@ -3,6 +3,8 @@
 #include <curses.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <termios.h>
+#include <fcntl.h>
 
 #include "global.h"
 #include "uibase.h"
@@ -28,6 +30,7 @@ void ui_init() {
     keypad(stdscr, true); // enables to read dynamic key input
     noecho();
     curs_set(0); // hide cursor
+    nodelay(stdscr, false); // let getch run in blocking mode
 
     // color check
     if(has_colors() == FALSE) {
@@ -49,6 +52,20 @@ void ui_init() {
     signal(SIGINT, SIG_IGN);
 
     // notice : print ui to stdscr must not work here
+}
+
+// not in use
+void non_cannonical() {
+    struct termios ttyinfo;
+    if (tcgetattr(0, &ttyinfo) == -1){
+		perror("cannot get params about stdin");
+		exit(1);
+	}
+    ttyinfo.c_lflag &= ~ICANON;
+    ttyinfo.c_cc[VMIN] = 1;
+    int tflag = fcntl(0, F_GETFL);
+    tflag |= O_NDELAY;
+    fcntl(0, F_SETFL, tflag);
 }
 
 void ui_terminate() {
